@@ -1,0 +1,14 @@
+# Utiliser une image JDK 17 officielle
+FROM eclipse-temurin:17-jdk-alpine
+
+# Définir le répertoire de travail
+WORKDIR /app
+
+# Copier ton jar dans l'image
+COPY target/*.jar app.jar
+
+
+EXPOSE 8080
+
+
+ENTRYPOINT ["java","-jar","app.jar"]
