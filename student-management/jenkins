@@ -1,0 +1,57 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('pack-token') // ID des credentials Jenkins
+        DOCKER_IMAGE = "achref/monapp"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/achrefjb99/devops.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn clean install'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t $DOCKER_IMAGE:latest .'
+            }
+        }
+
+        stage('Push to Docker Hub') {
+            steps {
+                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+                sh 'docker push $DOCKER_IMAGE:latest'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Déploiement en cours...'
+                // Ici tu peux ajouter kubectl, ansible, ou docker run
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline terminé avec succès ✅'
+        }
+        failure {
+            echo 'Pipeline échoué '
+        }
+    }
+}
